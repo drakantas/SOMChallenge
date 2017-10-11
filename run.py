@@ -16,4 +16,6 @@ elif experiment == 1:
 else:
     raise Exception('experiment debe ser 0 ó 1')
 
-sphere = Sphere(20, 100, data).run()
+sphere = Sphere(20, 200, data)
+sphere.run()
+print(sphere.weights)

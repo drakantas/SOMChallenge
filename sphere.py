@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Generator
 from random import uniform
 
 from dataset import DataSet
@@ -9,7 +10,9 @@ class Sphere:
         self.cluster_units = cluster_units  # Cantidad de cluster units que vamos a tener
         self.epochs = epochs  # Épocas que el algoritmo correrá
         self.data_set = data_set  # Diccionario de Data Sets
-        self.weight = None
+        self.weights = None  # Vector de pesos declarado como None
+        self.learning_rate = 1  # Tasa de aprendizaje inicial
+        self.decay = 0.15  # Decay para la tasa de aprendizaje, para cada actualización se reducirá en...
 
         # p10, p20, p30 son tuplas.
         # En las cuales el índice 0 indica el cluster F1 y el índice 1 el cluster F2
@@ -22,22 +25,78 @@ class Sphere:
         assert self.p20[0].shape == (10, 10, 3) and self.p20[1].shape == (10, 10, 3)
         assert self.p30[0].shape == (10, 10, 3) and self.p30[1].shape == (10, 10, 3)
 
-        # Inicializar arreglo de pesos
+        # Inicializar vector de pesos
         self._init_weight_array()
 
     def run(self):
         epoch = 0
 
         while epoch < self.epochs:
-            def _iterate_data_tuple(data: tuple):
-                counter = 0
-                for cluster in range(0, 2):  # Clusters F1 y F2
-                    for r in range(0, 10):  # Los cluster ya fueron separados en una tupla, los índices son [0,99]
-                        for c in range(0, 10):
-                            print(data[cluster][r][c])
+            def _iterate_data(data: tuple, cluster: int) -> Generator:
+                for r in range(0, 10):
+                    for c in range(0, 10):
+                        yield data[cluster][r][c]
 
-            _iterate_data_tuple(self.p10)
+            # ----------
+            # | P10    |
+            # ----------
+            for e in _iterate_data(self.p10, 0):  # F1
+                weight_index = self._calc_winning_unit(e)
+                self._update_weight(e, weight_index)
+
+            for e in _iterate_data(self.p10, 1):  # F2
+                weight_index = self._calc_winning_unit(e)
+                self._update_weight(e, weight_index)
+
+            # ----------
+            # | P20    |
+            # ----------
+            for e in _iterate_data(self.p20, 0):  # F1
+                weight_index = self._calc_winning_unit(e)
+                self._update_weight(e, weight_index)
+
+            for e in _iterate_data(self.p20, 1):  # F2
+                weight_index = self._calc_winning_unit(e)
+                self._update_weight(e, weight_index)
+
+            # ----------
+            # | P30    |
+            # ----------
+            for e in _iterate_data(self.p30, 0):  # F1
+                weight_index = self._calc_winning_unit(e)
+                self._update_weight(e, weight_index)
+
+            for e in _iterate_data(self.p30, 1):  # F2
+                weight_index = self._calc_winning_unit(e)
+                self._update_weight(e, weight_index)
+
+            self._update_learning_rate()  # Se terminó una época, actualizar tasa de aprendizaje
             epoch += 1
+
+    def _update_weight(self, input_data, wi):
+        self.weights[wi] = self.weights[wi] + self.learning_rate * (input_data - self.weights[wi])
+
+    def _update_learning_rate(self):
+        self.learning_rate = self.decay * self.learning_rate
+
+    def _calc_winning_unit(self, input_data: list) -> int:
+        distances = []
+
+        for weight in self.weights:
+            distances.append(self._calc_euclidean_distance(input_data, weight))
+
+        # El índice de la distancia más alta es el mismo índice del vector
+        # de pesos que vamos a actualizar.
+        return distances.index(max(distances))
+
+    @staticmethod
+    def _calc_euclidean_distance(input_data: list, weight: list):
+        # Calcular la distancia euclidiana de un vector de entrada vs un vector de pesos
+        def _pow() -> Generator:
+            for _i, w in enumerate(weight):
+                yield (w - input_data[_i]) ** 2
+
+        return sum(_pow())
 
     def _build_tdata_clusters(self, data: list) -> tuple:
         f1_cluster = self._get_cluster(data[0][:100], data)  # Los 100 primeros
@@ -50,7 +109,7 @@ class Sphere:
         for i in range(0, self.cluster_units):
             _w.append(self._get_cluster_unit())
 
-        self.weight = np.array(_w)
+        self.weights = np.array(_w)
 
     @staticmethod
     def _get_cluster_unit():
