@@ -1,7 +1,5 @@
 from pathlib import Path
-
 from dataset import DataSet
-from sphere import Sphere
 
 
 # 0 = Mapear data de esfera
@@ -16,6 +14,17 @@ elif experiment == 1:
 else:
     raise Exception('experiment debe ser 0 ó 1')
 
-sphere = Sphere(20, 200, data)
-sphere.run()
-print(sphere.weights)
+
+def run_sphere():
+    return
+
+
+def run_rgb():
+    return
+
+
+if __name__ == '__main__':
+    if experiment == 0:
+        run_sphere()
+    else:
+        run_rgb()
