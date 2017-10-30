@@ -4,18 +4,24 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 class Som:
-    def __init__(self, starting_radius: int = 5, shape: tuple = (10, 10, 3), grid_type: int = 0):
-        self.weight = np.random.rand(*shape)
+    def __init__(self, starting_radius: int = 5, shape: tuple = (10, 10, 3), grid_type: int = 0, zeros: bool = False,
+                 learning_rate: float = 1.0, decay: float = 0.0):
+        if not zeros:
+            self.weight = np.random.rand(*shape)
+        else:
+            self.weight = np.zeros(shape)
+
         self.grid_type = grid_type
         self.radius = starting_radius
-        self.learning_rate = 1
-        self._latest_trained_dataset = None
+        self.learning_rate = learning_rate
+        self.decay = decay
+        self.latest_trained_dataset = None
 
     def train(self, data, epochs: int = 100):
         assert len(data.shape) == 2
         assert data.shape[1] == 3
 
-        self._latest_trained_dataset = data
+        self.latest_trained_dataset = data
 
         counter = 0
 
@@ -44,10 +50,13 @@ class Som:
             if (counter + 1) % 20 == 0 and self.radius > 1:
                 self.radius -= 1
 
+            if self.learning_rate > 0.05:
+                self.learning_rate -= self.decay
+
             counter += 1
 
     def plot(self, title: str = 'Figura'):
-        if self._latest_trained_dataset is None:
+        if self.latest_trained_dataset is None:
             print('No hay data disponible para plot(), entrena la red neuronal primero antes de usar este '
                   'método.')
             return
@@ -58,9 +67,9 @@ class Som:
 
         ax = fig.add_subplot(111, projection='3d')
 
-        x = self._latest_trained_dataset[:, 0]
-        y = self._latest_trained_dataset[:, 1]
-        z = self._latest_trained_dataset[:, 2]
+        x = self.latest_trained_dataset[:, 0]
+        y = self.latest_trained_dataset[:, 1]
+        z = self.latest_trained_dataset[:, 2]
 
         ax.plot_trisurf(x, y, z, linewidth=0)
 
