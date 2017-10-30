@@ -9,7 +9,7 @@ from som import Som
 
 # 0 = Mapear data de esfera
 # 1 = What if? Mapear data RGB
-experiment = 1
+experiment = 0
 
 
 if experiment == 0:
