@@ -35,8 +35,8 @@ class Som:
 
                 neighbourhood = self._find_neighbourhood(winner[1], winner[2])
 
-                for row in range(*neighbourhood[0]):
-                    for column in range(*neighbourhood[1]):
+                for row in neighbourhood[0]:  # Filas del vecindario
+                    for column in neighbourhood[1]:  # Columnas del vecindario
                         self._update_weight(e, row, column)
 
             # Si el contador más uno es un múltiplo de 20 y el radio es mayor a 1, reducimos
@@ -46,13 +46,16 @@ class Som:
 
             counter += 1
 
-    def plot(self):
+    def plot(self, title: str = 'Figura'):
         if self._latest_trained_dataset is None:
             print('No hay data disponible para plot(), entrena la red neuronal primero antes de usar este '
                   'método.')
             return
 
         fig = plt.figure()
+        fig.canvas.set_window_title(title)
+        fig.suptitle(title, fontsize=14, fontweight='bold')
+
         ax = fig.add_subplot(111, projection='3d')
 
         x = self._latest_trained_dataset[:, 0]
@@ -95,7 +98,7 @@ class Som:
             if _range[1] > 10:
                 lookup_range[i][1] = 10
 
-        return lookup_range
+        return list(range(*lookup_range[0])), list(range(*lookup_range[1]))
 
     def _hexagonal_neighbourhood(self, row: int, column: int):
         pass

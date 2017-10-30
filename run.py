@@ -1,6 +1,8 @@
 from pathlib import Path
-from dataset import DataSet
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
+from dataset import DataSet
 from som import Som
 
 
@@ -19,23 +21,27 @@ else:
 
 def run_sphere():
     # Inicializamos SOM
-    som = Som(starting_radius=5, shape=(10, 10, 3), grid_type=0)
+    som = Som()  # Radio 5, y forma de vector de pesos 10x10 son asumidos por defecto
 
     # P10
-    som.train(data.P10.transpose(), epochs=1000)
-    som.plot()
+    som.train(data.P10.transpose(), epochs=100)
+    som.plot('Dataset P10, iteraciones=100')
 
     # P20
-    som.train(data.P20.transpose(), epochs=1000)
-    som.plot()
+    som.train(data.P20.transpose(), epochs=100)
+    som.plot('Dataset P20, iteraciones=200')
 
     # P30
-    som.train(data.P30.transpose(), epochs=1000)
-    som.plot()
+    som.train(data.P30.transpose(), epochs=100)
+    som.plot('Dataset P30, iteraciones=300')
 
 
 def run_rgb():
-    return
+    som = Som()
+
+    #som.train(data.RGB.transpose(), epochs=1000)
+
+
 
 
 if __name__ == '__main__':
