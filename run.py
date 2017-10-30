@@ -1,6 +1,8 @@
 from pathlib import Path
 from dataset import DataSet
 
+from som import Som
+
 
 # 0 = Mapear data de esfera
 # 1 = What if? Mapear data RGB
@@ -16,7 +18,20 @@ else:
 
 
 def run_sphere():
-    return
+    # Inicializamos SOM
+    som = Som(starting_radius=5, shape=(10, 10, 3), grid_type=0)
+
+    # P10
+    som.train(data.P10.transpose(), epochs=1000)
+    som.plot()
+
+    # P20
+    som.train(data.P20.transpose(), epochs=1000)
+    som.plot()
+
+    # P30
+    som.train(data.P30.transpose(), epochs=1000)
+    som.plot()
 
 
 def run_rgb():
